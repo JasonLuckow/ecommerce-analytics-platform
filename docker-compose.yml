@@ -1,0 +1,43 @@
+services:
+  kafka:
+    extends:
+      file: kafka/docker-compose.kafka.yml
+      service: kafka
+    networks:
+      - backend
+
+  zookeeper:
+    extends:
+      file: kafka/docker-compose.kafka.yml
+      service: zookeeper
+    networks:
+      - backend
+
+  cassandra:
+    extends:
+      file: cassandra/docker-compose.cassandra.yml
+      service: cassandra
+    networks:
+      - backend
+
+  event-producer:
+    build: ./event-producer
+    depends_on:
+      - kafka
+      - cassandra
+    networks:
+      - backend
+
+  event-consumer:
+    build: ./event-consumer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - kafka
+      - cassandra
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
